@@ -10,6 +10,7 @@ public class StockSimApplication {
 
         SpringApplication.run(StockSimApplication.class, args);
         System.out.println("Das gitignore ist vermutlich scheiße.");
+
     }
 
 }
