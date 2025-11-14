@@ -1,22 +1,41 @@
 package com.stocksim.stocksim;
 
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
+//@CrossOrigin(origins = "http://localhost:5173")
 public class TraderController
 {
+    @Autowired
+    private StockManager stockManager;
 
-    @RequestMapping("/hallo")
-    public Trader hallo()
-    {
 
-        Trader trader = new Bot(1, "hans");
 
-        return trader;
+
+
+
+    @PostMapping("/")
+    public String ausgabe(@RequestBody Bot bot){
+
+        stockManager.addTrader(bot);
+        return "Erfolgreich geaddet";
     }
+
+    @GetMapping("/trader")
+    public ArrayList<Trader> ausgabeTraders(){
+        return stockManager.ausgabe();
+    }
+
+    @GetMapping("/stock")
+    public String ausgabeStock(){
+
+        return stockManager.getCurrentPrice();
+    }
+
+
 }
