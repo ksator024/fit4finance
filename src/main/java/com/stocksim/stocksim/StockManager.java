@@ -3,48 +3,57 @@ package com.stocksim.stocksim;
 
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-
 @Service
 public class StockManager {
 
-    private int timeStamp = 0;
-    private ArrayList<Trader> traders = new ArrayList<Trader>();
-    //private ArrayList<Stock> stocks = new ArrayList<Stock>();
+    private int id;
     @Autowired
-    private Stock stock;
-    @Scheduled(fixedRate = 1000)
-    public void update(){
-        timeStamp++;
-    }
-    public void addTrader(Trader trader){
-        traders.add(trader);
-    }
+    private OrderBook orderBook;
 
-    public int getCounter() {
-        return timeStamp;
-    }
 
-    public ArrayList<Trader> ausgabe(){
-        return traders;
+    @Value("${player.startCapital}")
+    private double capital;
+
+    private int quantity;
+
+    public   StockManager(){
+        id = 1;
+
     }
 
-    public String getCurrentPrice(){
-
-        String time = LocalTime.now().format((DateTimeFormatter.ofPattern("HH:mm:ss:SSS")));
-        return stock.getCurrentPrice(timeStamp) + " time: " + time ;
+    public int getQuantity() {
+        return quantity;
     }
 
     @PostConstruct
     public void init(){
+        orderBook.setCapital(capital);
+    }
+    public void setOrder(Order order){
+        orderBook.setOrder(order);
 
+    }
 
+    @Scheduled(fixedRate = 1000)
+    public void update(){
+        orderBook.update();
+        quantity = orderBook.getQuantity();
+        capital =  orderBook.getCapital();
+    }
 
+    public void buy(@RequestBody Order buyOrder){
+        orderBook.setOrder(buyOrder);
+    }
+    public void sell(@RequestBody Order sellOrder){
+        orderBook.setOrder(sellOrder);
     }
 
 }

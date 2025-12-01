@@ -4,25 +4,30 @@ import java.sql.Timestamp;
 
 public class Order {
     private int id;
-    private Trader trader;
-    private Stock stock;
     private int quantity;
     private double price;
-    private String type;
-    private Timestamp timestamp;
+    private long date;
 
-
-    public Order(int id, Trader trader, Stock stock, int quantity, double price, String type, Timestamp timestamp) {
+    public Order(int id,   int quantity, double price) {
         this.id = id;
-        this.trader = trader;
-        this.stock = stock;
         this.quantity = quantity;
         this.price = price;
-        this.type = type;
-        this.timestamp = timestamp;
+        date = System.currentTimeMillis();
     }
 
+    public int getId() {
+        return id;
+    }
 
+    public int getQuantity() {
+        return quantity;
+    }
 
+    public double getPrice() {
+        return price;
+    }
 
+    public long getDate() {
+        return date;
+    }
 }
