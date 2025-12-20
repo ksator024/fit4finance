@@ -17,6 +17,8 @@ import java.util.HashMap;
 @Service
 public class StockManager {
 
+
+    DBManager db = new DBManager("stocks.db");
     private int id;
     private ArrayList<String> stockNames = new ArrayList<>(Arrays.asList("GOOGL", "APPL", "DAX"));
 
@@ -27,7 +29,7 @@ public class StockManager {
 
     private HashMap<String,Integer> quantities;
 
-    public StockManager() throws SQLException
+    public StockManager()
     {
         id = 1;
     }

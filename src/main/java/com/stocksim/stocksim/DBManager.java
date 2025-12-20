@@ -12,22 +12,30 @@ public class DBManager {
 
     private long currentTs;
 
-    public DBManager(String resourceName) throws Exception {
+    public DBManager(String resourceName) {
 
-        URL url = getClass()
-                .getClassLoader()
-                .getResource(resourceName);
+        try {
+            URL url = getClass()
+                    .getClassLoader()
+                    .getResource(resourceName);
 
-        if (url == null) {
-            throw new RuntimeException("DB nicht gefunden: " + resourceName);
+            if (url == null) {
+                throw new RuntimeException("DB nicht gefunden: " + resourceName);
+            }
+
+            Path dbPath = Path.of(url.toURI());
+
+            con = DriverManager.getConnection(
+                    "jdbc:sqlite:" + dbPath.toAbsolutePath()
+            );
+
+        } catch (Exception e) {
+            throw new IllegalStateException(
+                    "DBManager konnte nicht initialisiert werden", e
+            );
         }
-
-        Path dbPath = Path.of(url.toURI());
-
-        con = DriverManager.getConnection(
-                "jdbc:sqlite:" + dbPath.toAbsolutePath()
-        );
     }
+
 
     public void startTimestamp(long ts) throws SQLException {
         String sql = """
