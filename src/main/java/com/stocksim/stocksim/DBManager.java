@@ -1,6 +1,8 @@
 package com.stocksim.stocksim;
 
 import java.sql.*;
+import java.net.URL;
+import java.nio.file.Path;
 
 public class DBManager {
 
@@ -10,8 +12,21 @@ public class DBManager {
 
     private long currentTs;
 
-    public DBManager(String dbPath) throws SQLException {
-        con = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
+    public DBManager(String resourceName) throws Exception {
+
+        URL url = getClass()
+                .getClassLoader()
+                .getResource(resourceName);
+
+        if (url == null) {
+            throw new RuntimeException("DB nicht gefunden: " + resourceName);
+        }
+
+        Path dbPath = Path.of(url.toURI());
+
+        con = DriverManager.getConnection(
+                "jdbc:sqlite:" + dbPath.toAbsolutePath()
+        );
     }
 
     public void startTimestamp(long ts) throws SQLException {

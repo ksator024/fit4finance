@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,18 +20,16 @@ public class StockManager {
     private int id;
     private ArrayList<String> stockNames = new ArrayList<>(Arrays.asList("GOOGL", "APPL", "DAX"));
 
-
     private OrderBook orderBook = new OrderBook(stockNames);
-
 
     @Value("${player.startCapital}")
     private double capital;
 
     private HashMap<String,Integer> quantities;
 
-    public   StockManager(){
+    public StockManager() throws SQLException
+    {
         id = 1;
-
     }
 
     public HashMap<String,Integer> getQuantities() {
