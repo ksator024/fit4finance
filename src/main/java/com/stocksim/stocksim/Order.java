@@ -7,12 +7,14 @@ public class Order {
     private int quantity;
     private double price;
     private long date;
+    private String name;
 
-    public Order(int id,   int quantity, double price) {
+    public Order(int id,   int quantity, double price, String name) {
         this.id = id;
         this.quantity = quantity;
         this.price = price;
         date = System.currentTimeMillis();
+        this.name = name;
     }
 
     public int getId() {
@@ -30,4 +32,18 @@ public class Order {
     public long getDate() {
         return date;
     }
+    public String getName(){ return name;}
+
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "id=" + id +
+                ", quantity=" + quantity +
+                ", price=" + price +
+                ", date=" + date +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }
+

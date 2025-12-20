@@ -1,36 +1,40 @@
 package com.stocksim.stocksim;
 
 
+import com.stocksim.stocksim.DTOs.UpdateDTO;
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+
+
 @Service
 public class StockManager {
 
     private int id;
-    @Autowired
-    private OrderBook orderBook;
+    private ArrayList<String> stockNames = new ArrayList<>(Arrays.asList("GOOGL", "APPL", "DAX"));
+
+
+    private OrderBook orderBook = new OrderBook(stockNames);
 
 
     @Value("${player.startCapital}")
     private double capital;
 
-    private int quantity;
+    private HashMap<String,Integer> quantities;
 
     public   StockManager(){
         id = 1;
 
     }
 
-    public int getQuantity() {
-        return quantity;
+    public HashMap<String,Integer> getQuantities() {
+        return quantities;
     }
 
     @PostConstruct
@@ -45,8 +49,15 @@ public class StockManager {
     @Scheduled(fixedRate = 1000)
     public void update(){
         orderBook.update();
-        quantity = orderBook.getQuantity();
+        quantities = orderBook.getQuantities();
         capital =  orderBook.getCapital();
+    }
+
+    public UpdateDTO getUpdateDTO(){
+        return new UpdateDTO(capital, orderBook, 10,orderBook.getQuantities(),orderBook.getCurrentPrice());
+    }
+    public void setPrice(double price){
+        orderBook.setCurrentPrice(price);
     }
 
     public void buy(@RequestBody Order buyOrder){

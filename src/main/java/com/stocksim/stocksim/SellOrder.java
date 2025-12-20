@@ -4,7 +4,7 @@ public class SellOrder extends Order{
 
 
 
-    public SellOrder(int id, Trader trader, Stock stock, int quantity, double price) {
-        super(id,  quantity, price);
+    public SellOrder(int id,  int quantity, double price, String name) {
+        super(id,  quantity, price, name);
     }
 }
