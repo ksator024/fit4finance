@@ -11,16 +11,19 @@ public class DBManager {
     private ResultSet rs;
 
     private long currentTs;
+    private String currentSymbol;
 
     public DBManager(String resourceName) {
-
+        // einfache Persistence.xml mit JDBC LOL :D
         try {
+            Class.forName("org.sqlite.JDBC");
+
             URL url = getClass()
                     .getClassLoader()
                     .getResource(resourceName);
 
             if (url == null) {
-                throw new RuntimeException("DB nicht gefunden: " + resourceName);
+                throw new IllegalStateException("DB nicht gefunden: " + resourceName);
             }
 
             Path dbPath = Path.of(url.toURI());
@@ -37,25 +40,34 @@ public class DBManager {
     }
 
 
-    public void startTimestamp(long ts) throws SQLException {
+    public void startTimestamp(String symbol, long ts) throws SQLException {
+
         String sql = """
-            SELECT * FROM stock
-            WHERE ts >= ?
+            SELECT *
+            FROM stock
+            WHERE symbol = ?
+              AND ts >= ?
             ORDER BY ts ASC
         """;
 
         stmt = con.prepareStatement(sql);
-        stmt.setLong(1, ts);
+        stmt.setString(1, symbol.toUpperCase());
+        stmt.setLong(2, ts);
+
         rs = stmt.executeQuery();
 
         if (rs.next()) {
+            currentSymbol = symbol.toUpperCase();
             currentTs = rs.getLong("ts");
         } else {
-            throw new SQLException("Kein Eintrag ab diesem Timestamp");
+            throw new SQLException(
+                    "Kein Eintrag für Symbol " + symbol + " ab Timestamp " + ts
+            );
         }
     }
 
-    public boolean nextTime() throws SQLException {
+
+    public boolean nextTimestamp() throws SQLException {
         if (rs != null && rs.next()) {
             currentTs = rs.getLong("ts");
             return true;
@@ -63,28 +75,35 @@ public class DBManager {
         return false;
     }
 
-    public long getTimestamp() throws SQLException {
+
+    public long getTimestamp() {
         return currentTs;
     }
 
-    public double getValue(String symbol) throws SQLException {
+
+    public double getValue(String symbol, String column) throws SQLException {
 
         if (rs == null) {
-            throw new SQLException("Cursor nicht initialisiert. startTimestamp() zuerst aufrufen.");
+            throw new SQLException(
+                    "Cursor nicht initialisiert. startTimestamp() zuerst aufrufen."
+            );
         }
 
-        return switch (symbol.toUpperCase()) {
-            case "OPEN"     -> rs.getDouble("open");
-            case "HIGH"     -> rs.getDouble("high");
-            case "LOW"      -> rs.getDouble("low");
-            case "CLOSE"    -> rs.getDouble("close");
-            case "ADJCLOSE" -> rs.getDouble("adjclose");
-            case "VOLUME"   -> rs.getLong("volume");
+        if (!symbol.equalsIgnoreCase(currentSymbol)) {
+            throw new IllegalArgumentException(
+                    "Aktueller Cursor ist auf Symbol " + currentSymbol
+            );
+        }
+
+        return switch (column.toUpperCase()) {
+            case "OPEN"  -> rs.getDouble("open");
+            case "HIGH"  -> rs.getDouble("high");
+            case "LOW"   -> rs.getDouble("low");
+            case "CLOSE" -> rs.getDouble("close");
+            case "VOLUME"-> rs.getLong("volume");
             default -> throw new IllegalArgumentException(
-                    "Unbekannter Wert-Typ: " + symbol
+                    "Unbekannte Spalte: " + column
             );
         };
     }
-
-
 }
