@@ -50,8 +50,7 @@ public class OrderBook {
 
     public void update(){
         ArrayList<Order> temp = new ArrayList<Order>();
-       // System.out.println(capital);
-
+        System.out.println(prices.toString());
                 for(BuyOrder buyOrder : buyOrders) {
                     String name = buyOrder.getName();
                     double currentPrice = prices.get(name);

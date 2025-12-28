@@ -17,16 +17,18 @@ import java.util.HashMap;
 @Service
 public class StockManager {
 
-
-    DBManager db = new DBManager("stocks.db");
+    private DBManager db;
     private int id;
-    private ArrayList<String> stockNames = new ArrayList<>(Arrays.asList("GOOGL", "APPL", "DAX"));
+    private ArrayList<String> stockNames = new ArrayList<>(Arrays.asList("AAPL","GOOGL"));
     private OrderBook orderBook = new OrderBook(stockNames);
+    private long startTime = 1;
 
 
 
     @Value("${player.startCapital}")
     private double capital;
+
+
 
     private HashMap<String,Integer> quantities;
 
@@ -41,19 +43,31 @@ public class StockManager {
 
     @PostConstruct
     public void init(){
+        db = new DBManager("testDB.db");
+        try {
+            db.startTimestamp(stockNames, startTime);
+        } catch (SQLException e) {
+            throw new RuntimeException("Fehler beim Starten des Timestamps", e);
+        }
         orderBook.setCapital(capital);
     }
+
     public void setOrder(Order order){
         orderBook.setOrder(order);
-        DBManager db = new DBManager("stocks.db");
-        db.startTimestamp();
     }
 
     @Scheduled(fixedRate = 1000)
-    public void update(){
+    public void update() throws SQLException {
+        // Preise aus DBManager abfragen und im OrderBook aktualisieren
+        for (String symbol : stockNames) {
+            double price = db.getValue(symbol, "CLOSE");
+            orderBook.setCurrentPrice(price, symbol);
+        }
+        db.nextTimestamp();
         orderBook.update();
         quantities = orderBook.getQuantities();
         capital =  orderBook.getCapital();
+
 
     }
 
