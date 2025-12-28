@@ -3,6 +3,8 @@ package com.stocksim.stocksim;
 import java.sql.*;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class DBManager {
 
@@ -40,31 +42,45 @@ public class DBManager {
     }
 
 
-    public void startTimestamp(String symbol, long ts) throws SQLException {
+        public void startTimestamp(ArrayList<String> symbols, long ts) throws SQLException {
+            if (symbols == null || symbols.isEmpty()) {
+                throw new IllegalArgumentException("Symbol-Liste darf nicht null oder leer sein.");
+            }
 
-        String sql = """
-            SELECT *
-            FROM stock
-            WHERE symbol = ?
-              AND ts >= ?
-            ORDER BY ts ASC
-        """;
+            // Erstelle Platzhalter für die IN-Klausel (z.B. "?, ?, ?")
+            String placeholders = String.join(", ", Collections.nCopies(symbols.size(), "?"));
 
-        stmt = con.prepareStatement(sql);
-        stmt.setString(1, symbol.toUpperCase());
-        stmt.setLong(2, ts);
+            String sql = String.format("""
+        SELECT *
+        FROM stock
+        WHERE symbol IN (%s)
+          AND ts >= ?
+        ORDER BY ts ASC
+    """, placeholders);
 
-        rs = stmt.executeQuery();
+            stmt = con.prepareStatement(sql);
 
-        if (rs.next()) {
-            currentSymbol = symbol.toUpperCase();
-            currentTs = rs.getLong("ts");
-        } else {
-            throw new SQLException(
-                    "Kein Eintrag für Symbol " + symbol + " ab Timestamp " + ts
-            );
+            // Setze die Symbole als Parameter
+            for (int i = 0; i < symbols.size(); i++) {
+                stmt.setString(i + 1, symbols.get(i).toUpperCase());
+            }
+
+            // Setze den Timestamp als letzten Parameter
+            stmt.setLong(symbols.size() + 1, ts);
+
+            rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                // Setze currentSymbol und currentTs auf die erste passende Zeile
+                currentSymbol = rs.getString("symbol");
+                currentTs = rs.getLong("ts");
+            } else {
+                throw new SQLException(
+                        "Kein Eintrag für die Symbole " + symbols + " ab Timestamp " + ts
+                );
+            }
         }
-    }
+
 
 
     public boolean nextTimestamp() throws SQLException {

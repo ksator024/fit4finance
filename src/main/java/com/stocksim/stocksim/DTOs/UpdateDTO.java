@@ -13,12 +13,12 @@ import java.util.HashMap;
 public class UpdateDTO {
     private double capital;
     private long timeStamp;
-    private double price;
+    private HashMap<String,Double> price;
     private OrderBookDTO orderBook;
     private HashMap<String,Integer> quantities;
 
 
-    public UpdateDTO(double capital, OrderBook orderBook, long timeStamp,HashMap<String,Integer> quantities,double price) {
+    public UpdateDTO(double capital, OrderBook orderBook, long timeStamp,HashMap<String,Integer> quantities,HashMap<String,Double> price) {
         this.capital = capital;
         this.timeStamp = timeStamp;
         this.orderBook = new OrderBookDTO(orderBook);
@@ -29,7 +29,7 @@ public class UpdateDTO {
     public double getCapital() {
         return capital;
     }
-    public double getPrice() {
+    public HashMap<String,Double>    getPrice() {
         return price;
     }
 

@@ -21,8 +21,9 @@ public class StockManager {
     DBManager db = new DBManager("stocks.db");
     private int id;
     private ArrayList<String> stockNames = new ArrayList<>(Arrays.asList("GOOGL", "APPL", "DAX"));
-
     private OrderBook orderBook = new OrderBook(stockNames);
+
+
 
     @Value("${player.startCapital}")
     private double capital;
@@ -44,7 +45,8 @@ public class StockManager {
     }
     public void setOrder(Order order){
         orderBook.setOrder(order);
-
+        DBManager db = new DBManager("stocks.db");
+        db.startTimestamp();
     }
 
     @Scheduled(fixedRate = 1000)
@@ -52,14 +54,15 @@ public class StockManager {
         orderBook.update();
         quantities = orderBook.getQuantities();
         capital =  orderBook.getCapital();
+
     }
 
     public UpdateDTO getUpdateDTO(){
         return new UpdateDTO(capital, orderBook, 10,orderBook.getQuantities(),orderBook.getCurrentPrice());
     }
-    public void setPrice(double price){
+   /* public void setPrice(double price){
         orderBook.setCurrentPrice(price);
-    }
+    }*/
 
     public void buy(@RequestBody Order buyOrder){
         orderBook.setOrder(buyOrder);

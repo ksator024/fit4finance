@@ -44,10 +44,10 @@ public class TraderController
         return stockManager.getUpdateDTO();
 
     }
-    @PostMapping("/setPrice")
+    /*@PostMapping("/setPrice")
     public void setPrice( @RequestBody double value){
         stockManager.setPrice(value);
-    }
+    }*/
 
 
     @PostMapping("/sell")
