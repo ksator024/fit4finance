@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-@JsonPropertyOrder({"timeStamp", "price", "capital", "quantities", "orderBook"})
+@JsonPropertyOrder({"timeStamp","capital", "price", "quantities", "orderBook"})
 public class UpdateDTO {
     private double capital;
     private long timeStamp;

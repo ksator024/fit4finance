@@ -22,9 +22,15 @@ public class OrderBook {
 
         if(order.getClass().equals(BuyOrder.class)){
             buyOrders.add((BuyOrder)order);
+            System.out.println("🛒 BUY ORDER GESETZT - Stock: " + order.getName() +
+                             ", Menge: " + order.getQuantity() +
+                             ", Preis: " + order.getPrice() + "€");
         }
         else{
             sellOrders.add((SellOrder)order);
+            System.out.println("📤 SELL ORDER GESETZT - Stock: " + order.getName() +
+                             ", Menge: " + order.getQuantity() +
+                             ", Preis: " + order.getPrice() + "€");
         }
     }
 
@@ -50,7 +56,6 @@ public class OrderBook {
 
     public void update(){
         ArrayList<Order> temp = new ArrayList<Order>();
-        System.out.println(prices.toString());
                 for(BuyOrder buyOrder : buyOrders) {
                     String name = buyOrder.getName();
                     double currentPrice = prices.get(name);
@@ -58,6 +63,11 @@ public class OrderBook {
                         quantities.put(name,quantities.get(name) +buyOrder.getQuantity());
                         capital -= buyOrder.getPrice() * buyOrder.getQuantity();
                         temp.add(buyOrder);
+                        System.out.println("✅ BUY ORDER AUSGEFÜHRT - Stock: " + name +
+                                         ", Menge: " + buyOrder.getQuantity() +
+                                         ", Preis: " + buyOrder.getPrice() + "€" +
+                                         ", Kosten: " + (buyOrder.getPrice() * buyOrder.getQuantity()) + "€" +
+                                         ", Verbleibender Kapital: " + capital + "€");
                     }
                 }
                 for(SellOrder sellOrder : sellOrders) {
@@ -67,7 +77,11 @@ public class OrderBook {
                         quantities.put(name,quantities.get(name) -sellOrder.getQuantity());
                         capital += sellOrder.getPrice() * sellOrder.getQuantity();
                         temp.add(sellOrder);
-                        System.out.println("test");
+                        System.out.println("✅ SELL ORDER AUSGEFÜHRT - Stock: " + name +
+                                         ", Menge: " + sellOrder.getQuantity() +
+                                         ", Preis: " + sellOrder.getPrice() + "€" +
+                                         ", Wert: " + (sellOrder.getPrice() * sellOrder.getQuantity()) + "€" +
+                                         ", Verbleibender Kapital: " + capital + "€");
                     }
                 }
         for(Order order : temp) {
