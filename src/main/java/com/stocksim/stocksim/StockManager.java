@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -43,7 +46,7 @@ public class StockManager {
 
     @PostConstruct
     public void init(){
-        db = new DBManager("testDB.db");
+        db = new DBManager("test.db");
         try {
             db.startTimestamp(stockNames, startTime);
         } catch (SQLException e) {
@@ -72,7 +75,8 @@ public class StockManager {
     }
 
     public UpdateDTO getUpdateDTO(){
-        return new UpdateDTO(capital, orderBook, 10,orderBook.getQuantities(),orderBook.getCurrentPrice());
+        String formattedDate = Instant.ofEpochSecond(db.getTimestamp()).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
+        return new UpdateDTO(capital, orderBook, formattedDate,orderBook.getQuantities(),orderBook.getCurrentPrice());
     }
    /* public void setPrice(double price){
         orderBook.setCurrentPrice(price);
