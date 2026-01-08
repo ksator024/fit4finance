@@ -14,7 +14,7 @@ import java.util.HashMap;
 
 @RestController
 @Scope(value = WebApplicationContext.SCOPE_SESSION, proxyMode = ScopedProxyMode.TARGET_CLASS)
-//@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "*")
 public class TraderController
 {
     @Autowired

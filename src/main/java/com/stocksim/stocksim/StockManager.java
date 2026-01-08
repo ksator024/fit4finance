@@ -46,7 +46,7 @@ public class StockManager {
 
     @PostConstruct
     public void init(){
-        db = new DBManager("test.db");
+        db = new DBManager("stocks.db");
         try {
             db.startTimestamp(stockNames, startTime);
         } catch (SQLException e) {
@@ -75,8 +75,8 @@ public class StockManager {
     }
 
     public UpdateDTO getUpdateDTO(){
-        String formattedDate = Instant.ofEpochSecond(db.getTimestamp()).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
-        return new UpdateDTO(capital, orderBook, formattedDate,orderBook.getQuantities(),orderBook.getCurrentPrice());
+        //String formattedDate = Instant.ofEpochSecond(db.getTimestamp()).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
+        return new UpdateDTO(capital, orderBook, db.getTimestamp(),orderBook.getQuantities(),orderBook.getCurrentPrice());
     }
    /* public void setPrice(double price){
         orderBook.setCurrentPrice(price);
