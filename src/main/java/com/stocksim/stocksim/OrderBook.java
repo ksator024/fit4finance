@@ -21,6 +21,10 @@ public class OrderBook {
     public void setOrder(Order order){
 
         if(order.getClass().equals(BuyOrder.class)){
+            if(order.getPrice()== -1){
+                order.setPrice(prices.get(order.getName()));
+            }
+
             buyOrders.add((BuyOrder)order);
             System.out.println("🛒 BUY ORDER GESETZT - Stock: " + order.getName() +
                              ", Menge: " + order.getQuantity() +

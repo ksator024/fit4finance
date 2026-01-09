@@ -45,5 +45,9 @@ public class Order {
                 ", name='" + name + '\'' +
                 '}';
     }
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
 }
 
