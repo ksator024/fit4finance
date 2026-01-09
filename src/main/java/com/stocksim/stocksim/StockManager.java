@@ -62,14 +62,15 @@ public class StockManager {
     @Scheduled(fixedRate = 1000)
     public void update() throws SQLException {
         // Preise aus DBManager abfragen und im OrderBook aktualisieren
+
+        orderBook.update();
+        quantities = orderBook.getQuantities();
+        capital =  orderBook.getCapital();
+        db.nextTimestamp();
         for (String symbol : stockNames) {
             double price = db.getValue(symbol, "CLOSE");
             orderBook.setCurrentPrice(price, symbol);
         }
-        db.nextTimestamp();
-        orderBook.update();
-        quantities = orderBook.getQuantities();
-        capital =  orderBook.getCapital();
 
 
     }
