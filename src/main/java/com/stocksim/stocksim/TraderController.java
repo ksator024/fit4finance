@@ -2,62 +2,115 @@ package com.stocksim.stocksim;
 
 
 import com.stocksim.stocksim.DTOs.UpdateDTO;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.WebApplicationContext;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.UUID;
 
 @RestController
-@Scope(value = WebApplicationContext.SCOPE_SESSION, proxyMode = ScopedProxyMode.TARGET_CLASS)
-@CrossOrigin(origins = "*")
 public class TraderController
 {
     @Autowired
-    private StockManager stockManager;
+    private SimulationManager simulationManager;
 
+    /**
+     * Erstellt eine neue Simulation
+     */
+    @PostMapping("/simulations")
+    public ResponseEntity<HashMap<String, String>> createSimulation() {
+        UUID simulationId = simulationManager.newSimulation();
 
+        HashMap<String, String> response = new HashMap<>();
+        response.put("simulationId", simulationId.toString());
 
-    @GetMapping("/quantity")
-    public HashMap<String,Integer> getQuantity()
-    {
-        return stockManager.getQuantities();
+        return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/buy")
-    public void buy(@RequestBody BuyOrder buyOrder)
+    /**
+     * Löscht eine Simulation
+     */
+    @DeleteMapping("/{id}/delete")
+    public ResponseEntity<String> deleteSimulation(
+            @PathVariable String id) {
 
-    {
+        UUID simulationId = null;
 
-        stockManager.buy(buyOrder);
-
-    }
-
-
-    @GetMapping("/update")
-    public UpdateDTO update(){
-
-        return stockManager.getUpdateDTO();
-
-    }
-    /*@PostMapping("/setPrice")
-    public void setPrice( @RequestBody double value){
-        stockManager.setPrice(value);
-    }*/
-
-
-    @PostMapping("/sell")
-    public void sell(@RequestBody SellOrder sellOrder)
-        {
-        stockManager.sell(sellOrder);
+        try {
+            simulationId = UUID.fromString(id);
+        } catch (IllegalArgumentException e) {
+            System.err.println("[ERROR] Ungültige Simulation ID: " + id);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Simulation nicht gefunden");
         }
 
+        if (simulationManager.getSimulation(simulationId) == null) {
+            System.err.println("[ERROR] Simulation ID '" + id + "' nicht gefunden");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Simulation nicht gefunden");
+        }
 
+        simulationManager.deleteSimulation(simulationId);
+        return ResponseEntity.ok("Simulation gelöscht");
+    }
 
+    @PostMapping("/{id}/buy")
+    public ResponseEntity<String> buy(@PathVariable String id, @RequestBody BuyOrder buyOrder) {
+        UUID simulationId = parseSimulationId(id);
+        if (simulationId == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Simulation nicht gefunden");
+        }
 
+        StockManager stockManager = simulationManager.getSimulation(simulationId);
+        if (stockManager == null) {
+            System.err.println("[ERROR] Simulation ID '" + id + "' nicht gefunden");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Simulation nicht gefunden");
+        }
 
+        stockManager.buy(buyOrder);
+        return ResponseEntity.ok("Buy Order verarbeitet");
+    }
+
+    @GetMapping("/{id}/update")
+    public ResponseEntity<?> update(@PathVariable String id) {
+        UUID uuid = parseSimulationId(id);
+
+        StockManager stockManager = simulationManager.getSimulation(uuid);
+
+        if (stockManager == null) {
+            System.err.println("[ERROR] Simulation ID '" + id + "' nicht gefunden");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Simulation nicht gefunden");
+        }
+
+        return ResponseEntity.ok(stockManager.getUpdateDTO());
+    }
+
+    @PostMapping("/{id}/sell")
+    public ResponseEntity<String> sell(@PathVariable String id, @RequestBody SellOrder sellOrder) {
+        UUID simulationId = parseSimulationId(id);
+        if (simulationId == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Simulation nicht gefunden");
+        }
+
+        StockManager stockManager = simulationManager.getSimulation(simulationId);
+        if (stockManager == null) {
+            System.err.println("[ERROR] Simulation ID '" + id + "' nicht gefunden");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Simulation nicht gefunden");
+        }
+
+        stockManager.sell(sellOrder);
+        return ResponseEntity.ok("Sell Order verarbeitet");
+    }
+
+    /**
+     * Hilfsmethode zum Parsen der Simulation-ID
+     */
+    private UUID parseSimulationId(String id) {
+        try {
+            return UUID.fromString(id);
+        } catch (IllegalArgumentException e) {
+            System.err.println("[ERROR] Ungültige Simulation ID: " + id);
+            return null;
+        }
+    }
 }

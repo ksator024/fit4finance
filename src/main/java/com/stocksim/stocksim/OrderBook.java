@@ -1,12 +1,9 @@
 package com.stocksim.stocksim;
 
 
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
-@Service
 public class OrderBook {
 
 

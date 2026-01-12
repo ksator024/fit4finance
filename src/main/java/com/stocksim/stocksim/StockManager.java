@@ -2,64 +2,59 @@ package com.stocksim.stocksim;
 
 
 import com.stocksim.stocksim.DTOs.UpdateDTO;
-import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.sql.SQLException;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 
-@Service
 public class StockManager {
 
     private DBManager db;
     private int id;
-    private ArrayList<String> stockNames = new ArrayList<>(Arrays.asList("AAPL","GOOGL"));
-    private OrderBook orderBook = new OrderBook(stockNames);
-    private long startTime = 1;
-
-
-
-    @Value("${player.startCapital}")
+    private ArrayList<String> stockNames;
+    private OrderBook orderBook;
+    private long startTime;
+    private long endTime;
     private double capital;
-
-
-
     private HashMap<String,Integer> quantities;
 
-    public StockManager()
+    public StockManager(DBManager db, OrderBook orderBook)
     {
-        id = 1;
+        this.db = db;
+        this.orderBook = orderBook;
+
+        this.id = 1;
     }
 
     public HashMap<String,Integer> getQuantities() {
         return quantities;
     }
 
-    @PostConstruct
-    public void init(){
-        db = new DBManager("stocks.db");
-        try {
-            db.startTimestamp(stockNames, startTime);
-        } catch (SQLException e) {
-            throw new RuntimeException("Fehler beim Starten des Timestamps", e);
-        }
+    public void init() throws SQLException {
+
+
+        this.stockNames = new ArrayList<>();
+        this.stockNames.add("AAPL");
+        this.stockNames.add("GOOGL");
+        this.stockNames.add("MSFT");
+        this.startTime = 1262304000; // 01.01.2021
+        this.endTime = 1672444800;   // 31.12.2022
+        this.capital = 100000.0; // Startkapital
+        db.startTimestamp(stockNames, startTime);
         orderBook.setCapital(capital);
+        // Setze die initialen Preise
+        for (String symbol : stockNames) {
+            double price = db.getValue(symbol, "CLOSE");
+            orderBook.setCurrentPrice(price, symbol);
+        }
     }
 
     public void setOrder(Order order){
         orderBook.setOrder(order);
     }
 
-    @Scheduled(fixedRate = 1000)
     public void update() throws SQLException {
         // Preise aus DBManager abfragen und im OrderBook aktualisieren
 
@@ -76,12 +71,9 @@ public class StockManager {
     }
 
     public UpdateDTO getUpdateDTO(){
-        //String formattedDate = Instant.ofEpochSecond(db.getTimestamp()).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
         return new UpdateDTO(capital, orderBook, db.getTimestamp(),orderBook.getQuantities(),orderBook.getCurrentPrice());
     }
-   /* public void setPrice(double price){
-        orderBook.setCurrentPrice(price);
-    }*/
+
 
     public void buy(@RequestBody Order buyOrder){
         orderBook.setOrder(buyOrder);
