@@ -120,4 +120,8 @@ public class OrderBook {
         return prices;
     }
 
+    public void cancelOrder(int id) {
+        buyOrders.removeIf(order -> order.getId() == id);
+        sellOrders.removeIf(order -> order.getId() == id);
+    }
 }

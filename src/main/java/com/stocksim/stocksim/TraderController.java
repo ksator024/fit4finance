@@ -20,8 +20,8 @@ public class TraderController
      * Erstellt eine neue Simulation
      */
     @PostMapping("/simulations")
-    public ResponseEntity<HashMap<String, String>> createSimulation() {
-        UUID simulationId = simulationManager.newSimulation();
+    public ResponseEntity<HashMap<String, String>> createSimulation(@RequestParam int number) {
+        UUID simulationId = simulationManager.newSimulation(number);
 
         HashMap<String, String> response = new HashMap<>();
         response.put("simulationId", simulationId.toString());
@@ -85,6 +85,14 @@ public class TraderController
         return ResponseEntity.ok(stockManager.getUpdateDTO());
     }
 
+    @PostMapping("/{id}/pause")
+    public void pause(@PathVariable String id, @RequestParam String action){
+        UUID simulationId = parseSimulationId(id);
+        simulationManager.setPause(simulationId, action);
+
+    }
+
+
     @PostMapping("/{id}/sell")
     public ResponseEntity<String> sell(@PathVariable String id, @RequestBody SellOrder sellOrder) {
         UUID simulationId = parseSimulationId(id);
@@ -102,6 +110,15 @@ public class TraderController
         return ResponseEntity.ok("Sell Order verarbeitet");
     }
 
+    @PostMapping("/{id}/cancel")
+    public void cancelSimulation(@PathVariable String id, @RequestBody HashMap<String, Integer> request) {
+        Integer bodyId = request.get("id");
+        System.out.println("Cancel Simulation called with path id: " + id + " and body id: " + bodyId);
+        UUID simulationId = parseSimulationId(id);
+        simulationManager.cancelOrder(simulationId,(int) bodyId);
+        // TODO: use id (path) and bodyId (payload) to cancel the simulation
+    }
+
     /**
      * Hilfsmethode zum Parsen der Simulation-ID
      */
@@ -113,4 +130,6 @@ public class TraderController
             return null;
         }
     }
+
+
 }

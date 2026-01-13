@@ -13,16 +13,11 @@ public class SimulationManager {
     private HashMap<UUID, StockManager> simulations = new HashMap<>();
 
 
-    public UUID newSimulation() {
+    public UUID newSimulation(int number) {
         // Neue Simulation erstellen
         UUID newSimId = UUID.randomUUID();
         DBManager dbManager = new DBManager("stocks.db");
-        ArrayList<String> stockNames = new ArrayList<>();
-        stockNames.add("AAPL");
-        stockNames.add("GOOGL");
-        stockNames.add("MSFT");
-        OrderBook orderBook = new OrderBook(stockNames);
-        StockManager stockManager = new StockManager(dbManager, orderBook);
+        StockManager stockManager = new StockManager(dbManager,number);
 
         // Initialisierung
         try {
@@ -69,11 +64,21 @@ public class SimulationManager {
             UUID simId = entry.getKey();
             StockManager stockManager = entry.getValue();
             try {
-                stockManager.update();
+                if(!stockManager.isPaused()) {
+                    stockManager.update();
+                }
             } catch (SQLException e) {
                 System.err.println("[ERROR] Fehler beim Aktualisieren der Simulation " + simId + ": " + e.getMessage());
             }
         }
+    }
+    public  void cancelOrder(UUID id, int orderId) {
+        simulations.get(id).cancelOrder(orderId);
+    }
+
+
+    public void setPause(UUID id, String pause) {
+        simulations.get(id).setPaused(pause);
     }
 }
 

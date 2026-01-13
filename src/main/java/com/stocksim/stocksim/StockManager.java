@@ -19,13 +19,32 @@ public class StockManager {
     private long endTime;
     private double capital;
     private HashMap<String,Integer> quantities;
+    private boolean paused = false;
 
-    public StockManager(DBManager db, OrderBook orderBook)
+    public void setPaused(String action) {
+        if(action.equals("start")) {
+            paused = true;
+        }
+        else if(action.equals("stop")) {
+            paused = false;
+        }
+    }
+
+    public boolean isPaused() {
+        return paused;
+    }
+
+    public StockManager(DBManager db, int id)
     {
         this.db = db;
-        this.orderBook = orderBook;
-
         this.id = 1;
+        Scenario scenario = ScenarioManager.getScenario(id);
+        this.stockNames = scenario.getStockName();
+        this.capital = scenario.getCapital();
+        this.startTime = scenario.getStartTime();
+        this.endTime = scenario.getEndTime();
+        this.orderBook = new OrderBook(stockNames);
+
     }
 
     public HashMap<String,Integer> getQuantities() {
@@ -35,13 +54,6 @@ public class StockManager {
     public void init() throws SQLException {
 
 
-        this.stockNames = new ArrayList<>();
-        this.stockNames.add("AAPL");
-        this.stockNames.add("GOOGL");
-        this.stockNames.add("MSFT");
-        this.startTime = 1262304000; // 01.01.2021
-        this.endTime = 1672444800;   // 31.12.2022
-        this.capital = 100000.0; // Startkapital
         db.startTimestamp(stockNames, startTime);
         orderBook.setCapital(capital);
         // Setze die initialen Preise
@@ -74,7 +86,9 @@ public class StockManager {
         return new UpdateDTO(capital, orderBook, db.getTimestamp(),orderBook.getQuantities(),orderBook.getCurrentPrice());
     }
 
-
+    public void cancelOrder(int id){
+        orderBook.cancelOrder(id);
+    }
     public void buy(@RequestBody Order buyOrder){
         orderBook.setOrder(buyOrder);
     }
