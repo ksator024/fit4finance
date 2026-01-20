@@ -20,8 +20,8 @@ public class TraderController
      * Erstellt eine neue Simulation
      */
     @PostMapping("/simulations")
-    public ResponseEntity<HashMap<String, String>> createSimulation(@RequestParam int number) {
-        UUID simulationId = simulationManager.newSimulation(number);
+    public ResponseEntity<HashMap<String, String>> createSimulation(@RequestParam String number) {
+        UUID simulationId = simulationManager.newSimulation(Integer.parseInt(number));
 
         HashMap<String, String> response = new HashMap<>();
         response.put("simulationId", simulationId.toString());

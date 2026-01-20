@@ -12,6 +12,7 @@ import java.util.HashMap;
 public class StockManager {
 
     private DBManager db;
+    private DBManagerNews dbNews;
     private int id;
     private ArrayList<String> stockNames;
     private OrderBook orderBook;
@@ -19,8 +20,10 @@ public class StockManager {
     private long endTime;
     private double capital;
     private HashMap<String,Integer> quantities;
+    private ArrayList<News> newsList = new ArrayList<>();
     private boolean paused = false;
-
+    private long currentTime;
+    private News nextNews;
     public void setPaused(String action) {
         if(action.equals("start")) {
             paused = true;
@@ -34,9 +37,10 @@ public class StockManager {
         return paused;
     }
 
-    public StockManager(DBManager db, int id)
+    public StockManager(DBManager db, int id, DBManagerNews dbNews)
     {
         this.db = db;
+        this.dbNews = dbNews;
         this.id = 1;
         Scenario scenario = ScenarioManager.getScenario(id);
         this.stockNames = scenario.getStockName();
@@ -55,12 +59,15 @@ public class StockManager {
 
 
         db.startTimestamp(stockNames, startTime);
+        dbNews.startTimestamp(startTime, endTime);
+        currentTime = db.getTimestamp();
         orderBook.setCapital(capital);
         // Setze die initialen Preise
         for (String symbol : stockNames) {
             double price = db.getValue(symbol, "CLOSE");
             orderBook.setCurrentPrice(price, symbol);
         }
+        nextNews = dbNews.next();
     }
 
     public void setOrder(Order order){
@@ -74,16 +81,24 @@ public class StockManager {
         quantities = orderBook.getQuantities();
         capital =  orderBook.getCapital();
         db.nextTimestamp();
+        currentTime = db.getTimestamp();
         for (String symbol : stockNames) {
             double price = db.getValue(symbol, "CLOSE");
             orderBook.setCurrentPrice(price, symbol);
+        }
+        if(nextNews.getTimestamp() <= currentTime){
+            if(nextNews != null) {
+                newsList.add(nextNews);
+                nextNews = dbNews.next();
+            }
         }
 
 
     }
 
     public UpdateDTO getUpdateDTO(){
-        return new UpdateDTO(capital, orderBook, db.getTimestamp(),orderBook.getQuantities(),orderBook.getCurrentPrice());
+
+        return new UpdateDTO(capital, orderBook, db.getTimestamp(),orderBook.getQuantities(),orderBook.getCurrentPrice(),newsList);
     }
 
     public void cancelOrder(int id){

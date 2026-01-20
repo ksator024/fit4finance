@@ -1,8 +1,10 @@
 package com.stocksim.stocksim.DTOs;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.stocksim.stocksim.News;
 import com.stocksim.stocksim.OrderBook;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 @JsonPropertyOrder({"timeStamp","capital", "price", "quantities", "orderBook"})
@@ -12,14 +14,16 @@ public class UpdateDTO {
     private HashMap<String,Double> price;
     private OrderBookDTO orderBook;
     private HashMap<String,Integer> quantities;
+    private ArrayList<News> news;
 
 
-    public UpdateDTO(double capital, OrderBook orderBook, long timeStamp, HashMap<String,Integer> quantities, HashMap<String,Double> price) {
+    public UpdateDTO(double capital, OrderBook orderBook, long timeStamp, HashMap<String,Integer> quantities, HashMap<String,Double> price, ArrayList<News> news) {
         this.capital = capital;
         this.timeStamp = timeStamp;
         this.orderBook = new OrderBookDTO(orderBook);
         this.quantities = quantities;
         this.price = price;
+        this.news = news;
     }
 
     public double getCapital() {
@@ -41,5 +45,7 @@ public class UpdateDTO {
         return quantities;
     }
 
-
+    public ArrayList<News> getNews() {
+        return news;
+    }
 }

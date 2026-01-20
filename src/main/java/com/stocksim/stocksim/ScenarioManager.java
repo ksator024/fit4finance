@@ -10,7 +10,7 @@ public  class ScenarioManager {
 
    scenarios.add(new Scenario(1262356200, 1625097600, new ArrayList<>(Arrays.asList("AAPL", "GOOGL")), 100000.0));
    scenarios.add(new Scenario(1262356200, 1625097600, new ArrayList<>(Arrays.asList("AAPL", "GOOGL")), 2));
-   scenarios.add(new Scenario(1262356200, 1625097600, new ArrayList<>(Arrays.asList("AAPL", "GOOGL")), 3));
+       scenarios.add(new Scenario(1, 1625097600, new ArrayList<>(Arrays.asList("AAPL", "GOOGL")), 3));
    System.out.println("SCNEARIO NUMBER: " + number);
    return scenarios.get(number-1);
    }
