@@ -67,7 +67,7 @@ public class StockManager {
             double price = db.getValue(symbol, "CLOSE");
             orderBook.setCurrentPrice(price, symbol);
         }
-        nextNews = dbNews.next();
+       // nextNews = dbNews.next();
     }
 
     public void setOrder(Order order){
@@ -86,12 +86,12 @@ public class StockManager {
             double price = db.getValue(symbol, "CLOSE");
             orderBook.setCurrentPrice(price, symbol);
         }
-        if(nextNews.getTimestamp() <= currentTime){
+       /* if(nextNews.getTimestamp() <= currentTime){
             if(nextNews != null) {
                 newsList.add(nextNews);
                 nextNews = dbNews.next();
             }
-        }
+        }*/
 
 
     }
