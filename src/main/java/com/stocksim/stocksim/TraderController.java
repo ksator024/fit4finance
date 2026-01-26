@@ -88,7 +88,13 @@ public class TraderController
     @PostMapping("/{id}/pause")
     public void pause(@PathVariable String id, @RequestParam String action){
         UUID simulationId = parseSimulationId(id);
-        simulationManager.setPause(simulationId, action);
+        SimulationStatus simStat = SimulationStatus.RUNNING;
+        if(action.equals("pause")){
+            simStat = SimulationStatus.PAUSED;
+        } else if(action.equals("resume")) {
+            simStat = SimulationStatus.RUNNING;
+        }
+        simulationManager.setPause(simulationId, simStat);
 
     }
 

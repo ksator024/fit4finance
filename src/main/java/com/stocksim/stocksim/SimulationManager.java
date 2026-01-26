@@ -65,8 +65,13 @@ public class SimulationManager {
             UUID simId = entry.getKey();
             StockManager stockManager = entry.getValue();
             try {
-                if(!stockManager.isPaused()) {
+                if(stockManager.getSimulationStatus() == SimulationStatus.RUNNING) {
                     stockManager.update();
+                }
+                else if(stockManager.getSimulationStatus() == SimulationStatus.FINISHED) {
+
+                    //abschluss Page bauen
+                    // Simulation beenden
                 }
             } catch (SQLException e) {
                 System.err.println("[ERROR] Fehler beim Aktualisieren der Simulation " + simId + ": " + e.getMessage());
@@ -78,8 +83,8 @@ public class SimulationManager {
     }
 
 
-    public void setPause(UUID id, String pause) {
-        simulations.get(id).setPaused(pause);
+    public void setPause(UUID id, SimulationStatus pause) {
+        simulations.get(id).setSimulationStatus(pause);
     }
 }
 

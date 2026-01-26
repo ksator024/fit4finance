@@ -21,20 +21,12 @@ public class StockManager {
     private double capital;
     private HashMap<String,Integer> quantities;
     private ArrayList<News> newsList = new ArrayList<>();
-    private boolean paused = false;
     private long currentTime;
     private News nextNews;
-    public void setPaused(String action) {
-        if(action.equals("start")) {
-            paused = true;
-        }
-        else if(action.equals("stop")) {
-            paused = false;
-        }
-    }
+    private SimulationStatus simulationStatus;
 
-    public boolean isPaused() {
-        return paused;
+    public SimulationStatus getSimulationStatus() {
+        return simulationStatus;
     }
 
     public StockManager(DBManager db, int id, DBManagerNews dbNews)
@@ -57,7 +49,7 @@ public class StockManager {
 
     public void init() throws SQLException {
 
-
+        simulationStatus = SimulationStatus.RUNNING;
         db.startTimestamp(stockNames, startTime);
         dbNews.startTimestamp(startTime, endTime);
         currentTime = db.getTimestamp();
@@ -86,19 +78,19 @@ public class StockManager {
             double price = db.getValue(symbol, "CLOSE");
             orderBook.setCurrentPrice(price, symbol);
         }
-       /* if(nextNews.getTimestamp() <= currentTime){
+        if(nextNews.getTimestamp() <= currentTime){
             if(nextNews != null) {
                 newsList.add(nextNews);
                 nextNews = dbNews.next();
             }
-        }*/
+        }
 
 
     }
 
     public UpdateDTO getUpdateDTO(){
 
-        return new UpdateDTO(capital, orderBook, db.getTimestamp(),orderBook.getQuantities(),orderBook.getCurrentPrice(),newsList);
+        return new UpdateDTO(capital, orderBook, db.getTimestamp(),orderBook.getQuantities(),orderBook.getCurrentPrice(),newsList,simulationStatus);
     }
 
     public void cancelOrder(int id){
@@ -111,4 +103,7 @@ public class StockManager {
         orderBook.setOrder(sellOrder);
     }
 
+    public void setSimulationStatus(SimulationStatus simulationStatus) {
+        this.simulationStatus = simulationStatus;
+    }
 }
