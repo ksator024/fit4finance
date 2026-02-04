@@ -62,7 +62,7 @@ public class OrderBook {
                 for(BuyOrder buyOrder : buyOrders) {
                     String name = buyOrder.getName();
                     double currentPrice = prices.get(name);
-                    if(currentPrice <= buyOrder.getPrice()) {
+                    if(currentPrice <= buyOrder.getPrice() && capital >= buyOrder.getPrice() * buyOrder.getQuantity()) {
                         quantities.put(name,quantities.get(name) +buyOrder.getQuantity());
                         capital -= buyOrder.getPrice() * buyOrder.getQuantity();
                         temp.add(buyOrder);
@@ -76,7 +76,7 @@ public class OrderBook {
                 for(SellOrder sellOrder : sellOrders) {
                     String name = sellOrder.getName();
                     double currentPrice = prices.get(name);
-                    if (currentPrice >= sellOrder.getPrice()) {
+                    if (currentPrice >= sellOrder.getPrice() && quantities.get(name) >= sellOrder.getQuantity()) {
                         quantities.put(name,quantities.get(name) -sellOrder.getQuantity());
                         capital += sellOrder.getPrice() * sellOrder.getQuantity();
                         temp.add(sellOrder);

@@ -67,7 +67,6 @@ public class StockManager {
 
     public void update() throws SQLException {
         // Preise aus DBManager abfragen und im OrderBook aktualisieren
-
         orderBook.update();
         quantities = orderBook.getQuantities();
         capital =  orderBook.getCapital();
@@ -84,6 +83,10 @@ public class StockManager {
             }*/
         //}
 
+
+        if(currentTime >= endTime){
+            simulationStatus = SimulationStatus.FINISHED;
+        }
 
 
     }

@@ -94,8 +94,9 @@ public class Main {
             ctx.status(404).result("Simulation nicht gefunden");
             return;
         }
+            BuyOrder buyOrder = ctx.bodyAsClass(BuyOrder.class);
 
-        BuyOrder buyOrder = ctx.bodyAsClass(BuyOrder.class);
+
         stockManager.buy(buyOrder);
         ctx.result("Buy Order verarbeitet");
     }
@@ -124,7 +125,7 @@ public class Main {
         HashMap<String, Integer> request = ctx.bodyAsClass(HashMap.class);
         Integer bodyId = request.get("id");
 
-        System.out.println("Cancel Simulation called with path id: " + id + " and body id: " + bodyId);
+        System.out.println("Cancel order called with path id: " + id + " and body id: " + bodyId);
 
         UUID simulationId = parseSimulationId(id);
         if (simulationId == null) {

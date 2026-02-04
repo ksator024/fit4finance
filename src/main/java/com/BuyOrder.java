@@ -9,7 +9,6 @@ public class BuyOrder extends Order {
         super(id, quantity, price,name);
     }
 
-
-
-
+    public BuyOrder() {
+    }
 }

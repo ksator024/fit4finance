@@ -49,5 +49,10 @@ public class Order {
     public void setPrice(Double price) {
         this.price = price;
     }
+
+    public Order() {
+    }
+
 }
+
 
