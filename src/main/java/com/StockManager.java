@@ -31,7 +31,7 @@ public class StockManager {
     public StockManager(DBManager db, int id, DBManagerNews dbNews)
     {
         this.db = db;
-        this.dbNews = dbNews;
+       // this.dbNews = dbNews;
         this.id = 1;
         Scenario scenario = ScenarioManager.getScenario(id);
         this.stockNames = scenario.getStockName();
@@ -50,7 +50,7 @@ public class StockManager {
 
         simulationStatus = SimulationStatus.RUNNING;
         db.startTimestamp(stockNames, startTime);
-        dbNews.startTimestamp(startTime, endTime);
+       // dbNews.startTimestamp(startTime, endTime);
         currentTime = db.getTimestamp();
         orderBook.setCapital(capital);
         // Setze die initialen Preise
@@ -77,12 +77,13 @@ public class StockManager {
             double price = db.getValue(symbol, "CLOSE");
             orderBook.setCurrentPrice(price, symbol);
         }
-        if(nextNews.getTimestamp() <= currentTime){
-            if(nextNews != null) {
+       /* if(nextNews.getTimestamp() <= currentTime){
+           /* if(nextNews != null) {
                 newsList.add(nextNews);
                 nextNews = dbNews.next();
-            }
-        }
+            }*/
+        //}
+
 
 
     }
