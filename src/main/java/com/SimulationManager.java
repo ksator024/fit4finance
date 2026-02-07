@@ -56,6 +56,8 @@ public class SimulationManager {
     }
 
     public void update(){
+        ArrayList<UUID> finishedSimulations = new ArrayList<>();
+        System.out.println("Alle Simulationen: " + simulations.toString());
         for (Map.Entry<UUID, StockManager> entry : simulations.entrySet()) {
             UUID simId = entry.getKey();
             StockManager stockManager = entry.getValue();
@@ -64,13 +66,17 @@ public class SimulationManager {
                     stockManager.update();
                 }
                 else if(stockManager.getSimulationStatus() == SimulationStatus.FINISHED) {
+                    if (stockManager.getFinishTime() + 5000 <= System.currentTimeMillis()) {
+                        finishedSimulations.add(simId);
+                    }
 
-                    //abschluss Page bauen
-                    // Simulation beenden
                 }
             } catch (SQLException e) {
                 System.err.println("[ERROR] Fehler beim Aktualisieren der Simulation " + simId + ": " + e.getMessage());
             }
+        }
+        for(UUID simId : finishedSimulations) {
+            deleteSimulation(simId);
         }
     }
     public  void cancelOrder(UUID id, int orderId) {

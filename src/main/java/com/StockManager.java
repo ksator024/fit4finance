@@ -4,6 +4,7 @@ package com;
 import com.DTOs.UpdateDTO;
 
 import java.sql.SQLException;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -12,7 +13,6 @@ public class StockManager {
 
     private DBManager db;
     private DBManagerNews dbNews;
-    private int id;
     private ArrayList<String> stockNames;
     private OrderBook orderBook;
     private long startTime;
@@ -23,6 +23,7 @@ public class StockManager {
     private long currentTime;
     private News nextNews;
     private SimulationStatus simulationStatus;
+    private long finishTime;
 
     public SimulationStatus getSimulationStatus() {
         return simulationStatus;
@@ -31,8 +32,7 @@ public class StockManager {
     public StockManager(DBManager db, int id, DBManagerNews dbNews)
     {
         this.db = db;
-       // this.dbNews = dbNews;
-        this.id = 1;
+        this.dbNews = dbNews;
         Scenario scenario = ScenarioManager.getScenario(id);
         this.stockNames = scenario.getStockName();
         this.capital = scenario.getCapital();
@@ -50,7 +50,7 @@ public class StockManager {
 
         simulationStatus = SimulationStatus.RUNNING;
         db.startTimestamp(stockNames, startTime);
-       // dbNews.startTimestamp(startTime, endTime);
+        dbNews.startTimestamp(startTime, endTime);
         currentTime = db.getTimestamp();
         orderBook.setCapital(capital);
         // Setze die initialen Preise
@@ -58,7 +58,7 @@ public class StockManager {
             double price = db.getValue(symbol, "CLOSE");
             orderBook.setCurrentPrice(price, symbol);
         }
-       // nextNews = dbNews.next();
+        nextNews = dbNews.next();
     }
 
     public void setOrder(Order order){
@@ -67,6 +67,7 @@ public class StockManager {
 
     public void update() throws SQLException {
         // Preise aus DBManager abfragen und im OrderBook aktualisieren
+
         orderBook.update();
         quantities = orderBook.getQuantities();
         capital =  orderBook.getCapital();
@@ -76,19 +77,27 @@ public class StockManager {
             double price = db.getValue(symbol, "CLOSE");
             orderBook.setCurrentPrice(price, symbol);
         }
-       /* if(nextNews.getTimestamp() <= currentTime){
-           /* if(nextNews != null) {
+
+       if(nextNews!= null && nextNews.getTimestamp() <= currentTime){
+               System.out.println("neue News: ");
                 newsList.add(nextNews);
-                nextNews = dbNews.next();
-            }*/
-        //}
+               System.out.println(newsList.toString());
+               nextNews = dbNews.next();
 
-
+        }
         if(currentTime >= endTime){
             simulationStatus = SimulationStatus.FINISHED;
+            finishTime = System.currentTimeMillis();
         }
 
 
+
+
+
+    }
+
+    public long getFinishTime() {
+        return finishTime;
     }
 
     public UpdateDTO getUpdateDTO(){
@@ -108,5 +117,12 @@ public class StockManager {
 
     public void setSimulationStatus(SimulationStatus simulationStatus) {
         this.simulationStatus = simulationStatus;
+    }
+
+    @Override
+    public String toString() {
+
+        return "Simulation capital: " + capital + " Status: "+ simulationStatus.toString();
+
     }
 }

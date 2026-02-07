@@ -23,7 +23,8 @@ public class News {
         return news;
     }
 
-
-
-
+    @Override
+    public String toString() {
+        return headline + " Timestamp: " + timestamp;
+    }
 }

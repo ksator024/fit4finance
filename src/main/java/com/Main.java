@@ -28,6 +28,7 @@ public class Main {
         app.post("/{id}/buy",       Main::handleBuy);
         app.post("/{id}/sell",      Main::handleSell);
         app.post("/{id}/cancel",    Main::handleCancel);
+        app.post("/{id}/delete",    Main::handleDelete);
 
     }
 
@@ -137,6 +138,17 @@ public class Main {
         ctx.result("Order storniert");
     }
 
+    private static void handleDelete(Context ctx) {
+        UUID uuid = parseSimulationId(ctx.pathParam("id"));
+        if (uuid == null) {
+            ctx.status(400).result("Ungültige Simulation ID");
+            return;
+        }
+
+        simManager.deleteSimulation(uuid);
+        ctx.result("Simulation gelöscht");
+    }
+
     private static void updater(){
         ScheduledExecutorService scheduler =
                 Executors.newSingleThreadScheduledExecutor();
@@ -146,9 +158,8 @@ public class Main {
                 simManager.update();
             }
             catch (Exception e) {
-                System.err.println("[ERROR] Fehler beim Aktualisieren der Simulationen: " + e.getMessage());
+                //System.err.println("[ERROR] Fehler beim Aktualisieren der Simulationen: " + e.getMessage());
             }
-            System.out.println("Simulations updated");
         }, 0, 1, TimeUnit.SECONDS);
 
     }
