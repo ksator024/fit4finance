@@ -1,6 +1,7 @@
 package com;
 
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -13,17 +14,23 @@ public class DBManagerNews {
     private final Connection con;
     private ResultSet newsResultSet;
 
-    public DBManagerNews(String resourceName) {
+    public DBManagerNews(String dbPath) {
         try {
             Class.forName("org.sqlite.JDBC");
 
-            URL url = getClass().getClassLoader().getResource(resourceName);
-            if (url == null) {
-                throw new IllegalStateException("DB nicht gefunden: " + resourceName);
+            Path path = Path.of(dbPath);
+
+            // Prüfe, ob es ein Resource ist
+            if (!Files.exists(path)) {
+                URL url = getClass().getClassLoader().getResource(dbPath);
+                if (url == null) {
+                    throw new IllegalStateException("DB nicht gefunden: " + dbPath);
+                }
+
+                path = Path.of(url.toURI());
             }
 
-            Path dbPath = Path.of(url.toURI());
-            con = DriverManager.getConnection("jdbc:sqlite:" + dbPath.toAbsolutePath());
+            con = DriverManager.getConnection("jdbc:sqlite:" + path.toAbsolutePath());
         } catch (Exception e) {
             throw new IllegalStateException("DBManagerNews konnte nicht initialisiert werden", e);
         }

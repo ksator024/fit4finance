@@ -12,8 +12,8 @@ public class SimulationManager {
     public UUID newSimulation(int number) {
         // Neue Simulation erstellen
         UUID newSimId = UUID.randomUUID();
-        DBManager dbManager = new DBManager("stocks.db");
-        DBManagerNews dbManagerNews = new DBManagerNews("news.db");
+        DBManager dbManager = new DBManager(Config.getStocksDbPath());
+        DBManagerNews dbManagerNews = new DBManagerNews(Config.getNewsDbPath());
         StockManager stockManager = new StockManager(dbManager,number,dbManagerNews);
 
         // Initialisierung

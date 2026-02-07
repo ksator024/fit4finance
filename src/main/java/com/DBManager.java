@@ -2,6 +2,7 @@ package com;
 
 import java.sql.*;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,23 +17,28 @@ public class DBManager {
 
     private long currentTs;
 
-    public DBManager(String resourceName) {
+    public DBManager(String dbPath) {
         // einfache Persistence.xml mit JDBC LOL :D
         try {
             Class.forName("org.sqlite.JDBC");
 
-            URL url = getClass()
-                    .getClassLoader()
-                    .getResource(resourceName);
+            Path path = Path.of(dbPath);
 
-            if (url == null) {
-                throw new IllegalStateException("DB nicht gefunden: " + resourceName);
+            // Prüfe, ob es ein Resource ist
+            if (!Files.exists(path)) {
+                URL url = getClass()
+                        .getClassLoader()
+                        .getResource(dbPath);
+
+                if (url == null) {
+                    throw new IllegalStateException("DB nicht gefunden: " + dbPath);
+                }
+
+                path = Path.of(url.toURI());
             }
 
-            Path dbPath = Path.of(url.toURI());
-
             con = DriverManager.getConnection(
-                    "jdbc:sqlite:" + dbPath.toAbsolutePath()
+                    "jdbc:sqlite:" + path.toAbsolutePath()
             );
 
         } catch (Exception e) {
