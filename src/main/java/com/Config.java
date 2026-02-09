@@ -7,6 +7,7 @@ public class Config {
             .ignoreIfMissing()
             .load();
 
+
     public static String getStocksDbPath() {
         String path = dotenv.get("STOCKS_DB_PATH");
         return path != null ? path : "stocks.db";

@@ -1,5 +1,6 @@
 package com;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
@@ -14,21 +15,41 @@ public class Main {
     static SimulationManager simManager = new SimulationManager();
 
     public static void main(String[] args) {
+        System.out.println("Working Directory: " + System.getProperty("user.dir"));
+        System.out.println("DATABASE_PATH: " + Config.getStocksDbPath());
         updater();
         System.out.println("Hello World!");
         Javalin app = Javalin.create(config -> {
             config.plugins.enableCors(cors -> {
                 cors.add(it -> it.anyHost());
             });
+            config.staticFiles.add(staticFiles -> {
+                staticFiles.directory = "/dist";
+                staticFiles.hostedPath = "/";
+            });
         }).start(8080);
 
-        app.post("/simulations",    Main::handleCreateSimulation);
-        app.get("/{id}/update",     Main::handleGetUpdate);
-        app.post("/{id}/pause",     Main::handlePause);
-        app.post("/{id}/buy",       Main::handleBuy);
-        app.post("/{id}/sell",      Main::handleSell);
-        app.post("/{id}/cancel",    Main::handleCancel);
-        app.post("/{id}/delete",    Main::handleDelete);
+        // API Routes
+        app.post("/simulations", Main::handleCreateSimulation);
+        app.get("/{id}/update", Main::handleGetUpdate);
+        app.post("/{id}/pause", Main::handlePause);
+        app.post("/{id}/buy", Main::handleBuy);
+        app.post("/{id}/sell", Main::handleSell);
+        app.post("/{id}/cancel", Main::handleCancel);
+        app.post("/{id}/delete", Main::handleDelete);
+
+        // Fallback für SPA: Alle nicht gefundenen Routes liefern index.html
+        app.error(404, ctx -> {
+            ctx.contentType("text/html");
+            ctx.result(Main.class.getResourceAsStream("/dist/index.html"));
+        });
+
+        // Direkter / Route Handler als Fallback
+        app.get("/", ctx -> {
+            ctx.contentType("text/html");
+            ctx.result(Main.class.getResourceAsStream("/dist/index.html"));
+        });
+
 
     }
 

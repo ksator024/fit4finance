@@ -20,6 +20,7 @@ public class DBManager {
     public DBManager(String dbPath) {
         // einfache Persistence.xml mit JDBC LOL :D
         try {
+            /*
             Class.forName("org.sqlite.JDBC");
 
             Path path = Path.of(dbPath);
@@ -36,9 +37,13 @@ public class DBManager {
 
                 path = Path.of(url.toURI());
             }
-
+            */
+            Path tempdb = Files.createTempFile("stocks", ".db");
+            try (var inputStream = getClass().getResourceAsStream("/stocks.db")) {
+                Files.copy(inputStream, tempdb, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            }
             con = DriverManager.getConnection(
-                    "jdbc:sqlite:" + path.toAbsolutePath()
+                    "jdbc:sqlite:" + tempdb
             );
 
         } catch (Exception e) {

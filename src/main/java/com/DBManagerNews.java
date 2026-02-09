@@ -16,6 +16,7 @@ public class DBManagerNews {
 
     public DBManagerNews(String dbPath) {
         try {
+            /*
             Class.forName("org.sqlite.JDBC");
 
             Path path = Path.of(dbPath);
@@ -29,8 +30,13 @@ public class DBManagerNews {
 
                 path = Path.of(url.toURI());
             }
+            */
+            Path tempdb = Files.createTempFile("news", ".db");
 
-            con = DriverManager.getConnection("jdbc:sqlite:" + path.toAbsolutePath());
+            try (var inputStream = getClass().getResourceAsStream("/news.db")) {
+                Files.copy(inputStream, tempdb, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            }
+            con = DriverManager.getConnection("jdbc:sqlite:" + tempdb);
         } catch (Exception e) {
             throw new IllegalStateException("DBManagerNews konnte nicht initialisiert werden", e);
         }

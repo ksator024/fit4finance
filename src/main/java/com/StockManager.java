@@ -49,15 +49,20 @@ public class StockManager {
     public void init() throws SQLException {
 
         simulationStatus = SimulationStatus.RUNNING;
+        System.out.println("starte db stocks ...");
         db.startTimestamp(stockNames, startTime);
+        System.out.println("starte db news ...");
         dbNews.startTimestamp(startTime, endTime);
+
         currentTime = db.getTimestamp();
         orderBook.setCapital(capital);
         // Setze die initialen Preise
+        System.out.println("setze initiale Preise ...");
         for (String symbol : stockNames) {
             double price = db.getValue(symbol, "CLOSE");
             orderBook.setCurrentPrice(price, symbol);
         }
+        System.out.println("erste News laden ...");
         nextNews = dbNews.next();
     }
 
@@ -79,9 +84,7 @@ public class StockManager {
         }
 
        if(nextNews!= null && nextNews.getTimestamp() <= currentTime){
-               System.out.println("neue News: ");
                 newsList.add(nextNews);
-               System.out.println(newsList.toString());
                nextNews = dbNews.next();
 
         }

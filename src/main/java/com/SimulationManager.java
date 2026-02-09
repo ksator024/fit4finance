@@ -11,24 +11,38 @@ public class SimulationManager {
 
     public UUID newSimulation(int number) {
         // Neue Simulation erstellen
-        UUID newSimId = UUID.randomUUID();
-        DBManager dbManager = new DBManager(Config.getStocksDbPath());
-        DBManagerNews dbManagerNews = new DBManagerNews(Config.getNewsDbPath());
-        StockManager stockManager = new StockManager(dbManager,number,dbManagerNews);
-
-        // Initialisierung
+        System.out.println("starte mit erstellen");
         try {
-            stockManager.init();
-        } catch (SQLException e) {
-            System.err.println("[ERROR] Fehler beim Initialisieren der Simulation: " + e.getMessage());
-            throw new RuntimeException("Simulation konnte nicht erstellt werden", e);
+            UUID newSimId = UUID.randomUUID();
+            System.out.println("generiere DBManage....");
+            //DBManager dbManager = new DBManager(Config.getStocksDbPath());
+            DBManager dbManager = new DBManager("stocks.db");
+
+            System.out.println("generiere DBManageNews....");
+            DBManagerNews dbManagerNews = new DBManagerNews(Config.getNewsDbPath());
+            System.out.println("generiere stockmanager....");
+            StockManager stockManager = new StockManager(dbManager, number, dbManagerNews);
+
+            // Initialisierung
+            try {
+                System.out.println("initialisiere stockmanager....");
+                stockManager.init();
+            } catch (SQLException e) {
+                System.err.println("[ERROR] Fehler beim Initialisieren der Simulation: " + e.getMessage());
+                throw new RuntimeException("Simulation konnte nicht erstellt werden", e);
+            }
+
+            // Speichern
+            System.out.println("speichere stockmanager....");
+            simulations.put(newSimId, stockManager);
+
+            System.out.println("[INFO] Neue Simulation erstellt: " + newSimId);
+            return newSimId;
         }
-
-        // Speichern
-        simulations.put(newSimId, stockManager);
-
-        System.out.println("[INFO] Neue Simulation erstellt: " + newSimId);
-        return newSimId;
+        catch (Exception e) {
+            System.err.println("[ERROR] Fehler beim Erstellen der Simulation: " + e.getMessage());
+        }
+        return null;
     }
 
     /**
@@ -57,7 +71,6 @@ public class SimulationManager {
 
     public void update(){
         ArrayList<UUID> finishedSimulations = new ArrayList<>();
-        System.out.println("Alle Simulationen: " + simulations.toString());
         for (Map.Entry<UUID, StockManager> entry : simulations.entrySet()) {
             UUID simId = entry.getKey();
             StockManager stockManager = entry.getValue();
