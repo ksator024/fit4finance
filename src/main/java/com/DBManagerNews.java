@@ -8,17 +8,15 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
-public class DBManagerNews implements AutoCloseable {
+public class DBManagerNews {
 
     private final Connection con;
     private ResultSet newsResultSet;
-    private ArrayList<PreparedStatement> statements;
 
     public DBManagerNews(String dbPath) {
         try {
-            statements = new ArrayList<>();
+
             Path tempdb = Files.createTempFile("news", ".db");
 
             try (var inputStream = getClass().getResourceAsStream("/news.db")) {
@@ -35,9 +33,6 @@ public class DBManagerNews implements AutoCloseable {
             throw new IllegalArgumentException("startTimestamp darf nicht nach endTimestamp liegen");
         }
 
-        // Alte ResultSet und Statements schließen
-        closeResultSet();
-
         String sql = """
                 SELECT *
                 FROM NEWS
@@ -47,7 +42,6 @@ public class DBManagerNews implements AutoCloseable {
 
         try {
             PreparedStatement stmt = con.prepareStatement(sql);
-            statements.add(stmt);
             stmt.setLong(1, startTimestamp);
             stmt.setLong(2, endTimestamp);
 
@@ -77,52 +71,4 @@ public class DBManagerNews implements AutoCloseable {
         }
     }
 
-    /**
-     * Schließt das aktuelle ResultSet.
-     */
-    private void closeResultSet() {
-        if (newsResultSet != null) {
-            try {
-                newsResultSet.close();
-            } catch (SQLException e) {
-                System.err.println("Fehler beim Schließen von ResultSet: " + e.getMessage());
-            }
-            newsResultSet = null;
-        }
-    }
-
-    /**
-     * Schließt alle PreparedStatements.
-     */
-    private void closeStatements() {
-        if (statements != null) {
-            for (PreparedStatement ps : statements) {
-                if (ps != null) {
-                    try {
-                        ps.close();
-                    } catch (SQLException e) {
-                        System.err.println("Fehler beim Schließen von PreparedStatement: " + e.getMessage());
-                    }
-                }
-            }
-            statements.clear();
-        }
-    }
-
-    /**
-     * Schließt die Datenbankverbindung und gibt alle Ressourcen frei.
-     */
-    @Override
-    public void close() throws SQLException {
-        try {
-            closeResultSet();
-            closeStatements();
-            if (con != null && !con.isClosed()) {
-                con.close();
-            }
-        } catch (SQLException e) {
-            System.err.println("Fehler beim Schließen des DBManagerNews: " + e.getMessage());
-            throw e;
-        }
-    }
 }

@@ -52,18 +52,13 @@ public class SimulationManager {
     }
 
     /**
-     * Löscht eine Simulation und schließt alle Ressourcen
+     * Löscht eine Simulation
      *
      * @param simulationId UUID der Simulation
      */
     public void deleteSimulation(UUID simulationId) {
         if (simulations.containsKey(simulationId)) {
-            StockManager stockManager = simulations.remove(simulationId);
-            try {
-                stockManager.close();
-            } catch (Exception e) {
-                logger.error("Fehler beim Schließen der Simulation " + simulationId + ": " + e.getMessage());
-            }
+            simulations.remove(simulationId);
         } else {
             logger.error("Simulation " + simulationId + " nicht gefunden");
         }

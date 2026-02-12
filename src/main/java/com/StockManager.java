@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class StockManager implements AutoCloseable {
+public class StockManager {
 
     private static final Logger logger = LogManager.getLogger(StockManager.class);
 
@@ -127,18 +127,5 @@ public class StockManager implements AutoCloseable {
 
         return "Simulation capital: " + capital + " Status: "+ simulationStatus.toString();
 
-    }
-
-    /**
-     * Schließt alle Datenbankressourcen dieser Simulation.
-     */
-    @Override
-    public void close() throws Exception {
-        if (db != null) {
-            db.close();
-        }
-        if (dbNews != null) {
-            dbNews.close();
-        }
     }
 }
