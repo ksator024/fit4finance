@@ -3,44 +3,40 @@ package com;
 
 import java.sql.SQLException;
 import java.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class SimulationManager {
 
     private HashMap<UUID, StockManager> simulations = new HashMap<>();
+    private static Logger logger = LogManager.getLogger(SimulationManager.class);
 
 
     public UUID newSimulation(int number) {
         // Neue Simulation erstellen
-        System.out.println("starte mit erstellen");
         try {
             UUID newSimId = UUID.randomUUID();
-            System.out.println("generiere DBManage....");
             //DBManager dbManager = new DBManager(Config.getStocksDbPath());
             DBManager dbManager = new DBManager("stocks.db");
 
-            System.out.println("generiere DBManageNews....");
             DBManagerNews dbManagerNews = new DBManagerNews(Config.getNewsDbPath());
-            System.out.println("generiere stockmanager....");
             StockManager stockManager = new StockManager(dbManager, number, dbManagerNews);
 
             // Initialisierung
             try {
-                System.out.println("initialisiere stockmanager....");
                 stockManager.init();
             } catch (SQLException e) {
-                System.err.println("[ERROR] Fehler beim Initialisieren der Simulation: " + e.getMessage());
+                logger.error("Fehler beim Initialisieren der Simulation: " + e.getMessage());
                 throw new RuntimeException("Simulation konnte nicht erstellt werden", e);
             }
 
             // Speichern
-            System.out.println("speichere stockmanager....");
             simulations.put(newSimId, stockManager);
 
-            System.out.println("[INFO] Neue Simulation erstellt: " + newSimId);
             return newSimId;
         }
         catch (Exception e) {
-            System.err.println("[ERROR] Fehler beim Erstellen der Simulation: " + e.getMessage());
+            logger.error("Fehler beim Erstellen der Simulation: " + e.getMessage());
         }
         return null;
     }
@@ -56,16 +52,20 @@ public class SimulationManager {
     }
 
     /**
-     * Löscht eine Simulation
+     * Löscht eine Simulation und schließt alle Ressourcen
      *
      * @param simulationId UUID der Simulation
      */
     public void deleteSimulation(UUID simulationId) {
         if (simulations.containsKey(simulationId)) {
-            simulations.remove(simulationId);
-            System.out.println("[INFO] Simulation " + simulationId + " gelöscht");
+            StockManager stockManager = simulations.remove(simulationId);
+            try {
+                stockManager.close();
+            } catch (Exception e) {
+                logger.error("Fehler beim Schließen der Simulation " + simulationId + ": " + e.getMessage());
+            }
         } else {
-            System.err.println("[ERROR] Simulation " + simulationId + " nicht gefunden");
+            logger.error("Simulation " + simulationId + " nicht gefunden");
         }
     }
 
@@ -85,7 +85,7 @@ public class SimulationManager {
 
                 }
             } catch (SQLException e) {
-                System.err.println("[ERROR] Fehler beim Aktualisieren der Simulation " + simId + ": " + e.getMessage());
+                logger.error("Fehler beim Aktualisieren der Simulation " + simId + ": " + e.getMessage());
             }
         }
         for(UUID simId : finishedSimulations) {

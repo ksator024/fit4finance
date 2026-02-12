@@ -9,16 +9,17 @@ import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Main {
 
     static SimulationManager simManager = new SimulationManager();
+    static Logger logger = LogManager.getLogger(Main.class);
+
 
     public static void main(String[] args) {
-        System.out.println("Working Directory: " + System.getProperty("user.dir"));
-        System.out.println("DATABASE_PATH: " + Config.getStocksDbPath());
         updater();
-        System.out.println("Hello World!");
         Javalin app = Javalin.create(config -> {
             config.plugins.enableCors(cors -> {
                 cors.add(it -> it.anyHost());
@@ -28,6 +29,7 @@ public class Main {
                 staticFiles.hostedPath = "/";
             });
         }).start(8080);
+        logger.info("Server gestartet auf Port 8080");
 
         // API Routes
         app.post("/simulations", Main::handleCreateSimulation);
@@ -56,15 +58,18 @@ public class Main {
 
     private static void handleCreateSimulation(Context ctx) {
         try {
-            UUID simulationId = simManager.newSimulation(Integer.parseInt(ctx.queryParam("number")));
+            int number = Integer.parseInt(ctx.queryParam("number"));
+            UUID simulationId = simManager.newSimulation(number);
+            String clientIp = ctx.ip();
+            String userAgent = ctx.header("User-Agent");
 
             HashMap<String, String> response = new HashMap<>();
             response.put("simulationId", simulationId.toString());
-
+            logger.info("New simulation ID: " + simulationId + " Nr: " + number + " IP: " + clientIp + " User-Agent: " + userAgent);
             ctx.json(response);
         }
         catch (Exception e) {
-            System.out.println("[ERROR] Fehler beim Erstellen der Simulation: " + e.getMessage());
+            logger.error("Fehler beim Initialisieren der Simulation: " + e.getMessage());
         }
     }
 
@@ -104,7 +109,6 @@ public class Main {
 
     private static void handleBuy(Context ctx) {
         UUID uuid = parseSimulationId(ctx.pathParam("id"));
-        System.out.println("test");
         if (uuid == null) {
             ctx.status(400).result("Ungültige Simulation ID");
             return;
@@ -116,9 +120,9 @@ public class Main {
             ctx.status(404).result("Simulation nicht gefunden");
             return;
         }
-            BuyOrder buyOrder = ctx.bodyAsClass(BuyOrder.class);
+        BuyOrder buyOrder = ctx.bodyAsClass(BuyOrder.class);
 
-
+        System.out.println("Buy Order ausgeführt");
         stockManager.buy(buyOrder);
         ctx.result("Buy Order verarbeitet");
     }
@@ -138,6 +142,7 @@ public class Main {
         }
 
         SellOrder sellOrder = ctx.bodyAsClass(SellOrder.class);
+        System.out.println("Sell Order ausgeführt");
         stockManager.sell(sellOrder);
         ctx.result("Sell Order verarbeitet");
     }
@@ -147,7 +152,7 @@ public class Main {
         HashMap<String, Integer> request = ctx.bodyAsClass(HashMap.class);
         Integer bodyId = request.get("id");
 
-        System.out.println("Cancel order called with path id: " + id + " and body id: " + bodyId);
+        System.out.println("Cancel Order ausgeführt");
 
         UUID simulationId = parseSimulationId(id);
         if (simulationId == null) {
@@ -167,6 +172,7 @@ public class Main {
         }
 
         simManager.deleteSimulation(uuid);
+        logger.info("Simulation " + uuid + " gelöscht");
         ctx.result("Simulation gelöscht");
     }
 
@@ -179,7 +185,7 @@ public class Main {
                 simManager.update();
             }
             catch (Exception e) {
-                //System.err.println("[ERROR] Fehler beim Aktualisieren der Simulationen: " + e.getMessage());
+                System.err.println("[ERROR] Fehler beim Aktualisieren der Simulationen: " + e.getMessage());
             }
         }, 0, 1, TimeUnit.SECONDS);
 

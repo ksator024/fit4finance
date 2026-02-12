@@ -2,6 +2,8 @@ package com;
 
 
 import com.DTOs.UpdateDTO;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.sql.SQLException;
 import java.sql.SQLOutput;
@@ -9,7 +11,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class StockManager {
+public class StockManager implements AutoCloseable {
+
+    private static final Logger logger = LogManager.getLogger(StockManager.class);
 
     private DBManager db;
     private DBManagerNews dbNews;
@@ -49,20 +53,16 @@ public class StockManager {
     public void init() throws SQLException {
 
         simulationStatus = SimulationStatus.RUNNING;
-        System.out.println("starte db stocks ...");
         db.startTimestamp(stockNames, startTime);
-        System.out.println("starte db news ...");
         dbNews.startTimestamp(startTime, endTime);
 
         currentTime = db.getTimestamp();
         orderBook.setCapital(capital);
         // Setze die initialen Preise
-        System.out.println("setze initiale Preise ...");
         for (String symbol : stockNames) {
             double price = db.getValue(symbol, "CLOSE");
             orderBook.setCurrentPrice(price, symbol);
         }
-        System.out.println("erste News laden ...");
         nextNews = dbNews.next();
     }
 
@@ -127,5 +127,18 @@ public class StockManager {
 
         return "Simulation capital: " + capital + " Status: "+ simulationStatus.toString();
 
+    }
+
+    /**
+     * Schließt alle Datenbankressourcen dieser Simulation.
+     */
+    @Override
+    public void close() throws Exception {
+        if (db != null) {
+            db.close();
+        }
+        if (dbNews != null) {
+            dbNews.close();
+        }
     }
 }
