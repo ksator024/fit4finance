@@ -20,24 +20,6 @@ public class DBManager {
     public DBManager(String dbPath) {
         // einfache Persistence.xml mit JDBC LOL :D
         try {
-            /*
-            Class.forName("org.sqlite.JDBC");
-
-            Path path = Path.of(dbPath);
-
-            // Prüfe, ob es ein Resource ist
-            if (!Files.exists(path)) {
-                URL url = getClass()
-                        .getClassLoader()
-                        .getResource(dbPath);
-
-                if (url == null) {
-                    throw new IllegalStateException("DB nicht gefunden: " + dbPath);
-                }
-
-                path = Path.of(url.toURI());
-            }
-            */
             Path tempdb = Files.createTempFile("stocks", ".db");
             try (var inputStream = getClass().getResourceAsStream("/stocks.db")) {
                 Files.copy(inputStream, tempdb, java.nio.file.StandardCopyOption.REPLACE_EXISTING);

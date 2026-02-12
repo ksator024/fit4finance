@@ -16,21 +16,7 @@ public class DBManagerNews {
 
     public DBManagerNews(String dbPath) {
         try {
-            /*
-            Class.forName("org.sqlite.JDBC");
 
-            Path path = Path.of(dbPath);
-
-            // Prüfe, ob es ein Resource ist
-            if (!Files.exists(path)) {
-                URL url = getClass().getClassLoader().getResource(dbPath);
-                if (url == null) {
-                    throw new IllegalStateException("DB nicht gefunden: " + dbPath);
-                }
-
-                path = Path.of(url.toURI());
-            }
-            */
             Path tempdb = Files.createTempFile("news", ".db");
 
             try (var inputStream = getClass().getResourceAsStream("/news.db")) {
