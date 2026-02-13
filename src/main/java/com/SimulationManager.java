@@ -58,7 +58,9 @@ public class SimulationManager {
      */
     public void deleteSimulation(UUID simulationId) {
         if (simulations.containsKey(simulationId)) {
+            getSimulation(simulationId).getDb().close();
             simulations.remove(simulationId);
+
         } else {
             logger.error("Simulation " + simulationId + " nicht gefunden");
         }
@@ -75,6 +77,7 @@ public class SimulationManager {
                 }
                 else if(stockManager.getSimulationStatus() == SimulationStatus.FINISHED) {
                     if (stockManager.getFinishTime() + 5000 <= System.currentTimeMillis()) {
+
                         finishedSimulations.add(simId);
                     }
 
@@ -84,6 +87,7 @@ public class SimulationManager {
             }
         }
         for(UUID simId : finishedSimulations) {
+
             deleteSimulation(simId);
         }
     }

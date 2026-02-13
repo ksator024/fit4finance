@@ -128,4 +128,8 @@ public class StockManager {
         return "Simulation capital: " + capital + " Status: "+ simulationStatus.toString();
 
     }
+
+    public DBManager getDb() {
+        return db;
+    }
 }

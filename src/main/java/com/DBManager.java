@@ -137,6 +137,7 @@ public class DBManager {
 
     public void close() {
         try {
+            System.out.println("DBManager wird geschlossen...");
             if (resultSets != null) {
                 for (ResultSet rs : resultSets.values()) {
                     if (rs != null && !rs.isClosed()) {
