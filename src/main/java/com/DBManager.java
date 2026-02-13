@@ -134,4 +134,26 @@ public class DBManager {
             );
         };
     }
+
+    public void close() {
+        try {
+            if (resultSets != null) {
+                for (ResultSet rs : resultSets.values()) {
+                    if (rs != null && !rs.isClosed()) {
+                        rs.close();
+                    }
+                }
+                resultSets.clear();
+            }
+            if (stmt != null && !stmt.isClosed()) {
+                stmt.close();
+            }
+            if (con != null && !con.isClosed()) {
+                con.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
