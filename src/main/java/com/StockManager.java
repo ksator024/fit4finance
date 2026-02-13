@@ -53,7 +53,7 @@ public class StockManager {
     public void init() throws SQLException {
 
         simulationStatus = SimulationStatus.RUNNING;
-        db.startTimestamp(stockNames, startTime);
+        db.startTimestamp(stockNames, startTime,endTime);
         dbNews.startTimestamp(startTime, endTime);
 
         currentTime = db.getTimestamp();
@@ -131,5 +131,9 @@ public class StockManager {
 
     public DBManager getDb() {
         return db;
+    }
+
+    public DBManagerNews getDbNews() {
+        return dbNews;
     }
 }

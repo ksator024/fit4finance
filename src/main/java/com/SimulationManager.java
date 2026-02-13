@@ -58,7 +58,9 @@ public class SimulationManager {
      */
     public void deleteSimulation(UUID simulationId) {
         if (simulations.containsKey(simulationId)) {
-            getSimulation(simulationId).getDb().close();
+           StockManager sim = simulations.get(simulationId);
+            sim.getDb().close();
+            sim.getDbNews().close();
             simulations.remove(simulationId);
 
         } else {

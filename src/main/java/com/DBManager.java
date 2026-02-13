@@ -36,19 +36,19 @@ public class DBManager {
     }
 
 
-        public void startTimestamp(ArrayList<String> symbols, long ts) throws SQLException {
+        public void startTimestamp(ArrayList<String> symbols, long startTs, long endTs) throws SQLException {
         if (symbols == null || symbols.isEmpty()) {
             throw new IllegalArgumentException("Symbol-Liste darf nicht null oder leer sein.");
         }
 
         resultSets = new HashMap<>();
-        currentTs = ts;
+        currentTs = startTs;
 
         String sql = """
             SELECT *
             FROM stock
             WHERE symbol = ?
-              AND ts >= ?
+              AND ts BETWEEN ? AND ?
             ORDER BY ts ASC
         """;
 
@@ -56,14 +56,15 @@ public class DBManager {
         for (String symbol : symbols) {
             stmt = con.prepareStatement(sql);
             stmt.setString(1, symbol.toUpperCase());
-            stmt.setLong(2, ts);
+            stmt.setLong(2, startTs);
+            stmt.setLong(3, endTs+ 86400);
 
             ResultSet rs = stmt.executeQuery();
 
             if (!rs.next()) {
                 System.out.println(stmt.toString());
                 throw new SQLException(
-                        "Kein Eintrag für Symbol " + symbol + " ab Timestamp " + ts
+                        "Kein Eintrag für Symbol " + symbol + " ab Timestamp " + startTs
                 );
             }
 
@@ -71,7 +72,7 @@ public class DBManager {
             resultSets.put(symbol.toUpperCase(), rs);
             
             // Setze currentTs auf die erste passende Zeile (vom ersten Symbol)
-            if (currentTs == ts) {
+            if (currentTs == startTs) {
                 currentTs = rs.getLong("ts");
             }
         }
