@@ -11,7 +11,8 @@ import java.sql.SQLException;
 
 public class DBManagerNews {
 
-    private final Connection con;
+    private Connection con;
+    private PreparedStatement stmt;
     private ResultSet newsResultSet;
 
     public DBManagerNews(String dbPath) {
@@ -41,7 +42,15 @@ public class DBManagerNews {
                 """;
 
         try {
-            PreparedStatement stmt = con.prepareStatement(sql);
+            // Falls bereits eine vorherige Abfrage offen ist: Ressourcen schließen
+            if (newsResultSet != null && !newsResultSet.isClosed()) {
+                newsResultSet.close();
+            }
+            if (stmt != null && !stmt.isClosed()) {
+                stmt.close();
+            }
+
+            stmt = con.prepareStatement(sql);
             stmt.setLong(1, startTimestamp);
             stmt.setLong(2, endTimestamp);
 
@@ -58,7 +67,16 @@ public class DBManagerNews {
 
         try {
             if (!newsResultSet.next()) {
-                return null; // keine weitere Zeile
+                // keine weitere Zeile -> Ressourcen freigeben
+                if (!newsResultSet.isClosed()) {
+                    newsResultSet.close();
+                }
+                if (stmt != null && !stmt.isClosed()) {
+                    stmt.close();
+                }
+                newsResultSet = null;
+                stmt = null;
+                return null;
             }
 
             long ts = newsResultSet.getLong("Timestamp");
@@ -68,6 +86,23 @@ public class DBManagerNews {
             return new News(ts, headline, news);
         } catch (SQLException e) {
             throw new RuntimeException("Fehler beim Lesen der nächsten News", e);
+        }
+    }
+
+    public void close() {
+        try {
+            System.out.println("DBManagerNews wird geschlossen...");
+            if (newsResultSet != null && !newsResultSet.isClosed()) {
+                newsResultSet.close();
+            }
+            if (stmt != null && !stmt.isClosed()) {
+                stmt.close();
+            }
+            if (con != null && !con.isClosed()) {
+                con.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
