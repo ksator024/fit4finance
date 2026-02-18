@@ -58,7 +58,7 @@ public class OrderBook {
                     double currentPrice = prices.get(name);
                     if(currentPrice <= buyOrder.getPrice() && capital >= buyOrder.getPrice() * buyOrder.getQuantity()) {
                         quantities.put(name,quantities.get(name) +buyOrder.getQuantity());
-                        capital -= buyOrder.getPrice() * buyOrder.getQuantity();
+                        capital -= currentPrice * buyOrder.getQuantity();
                         temp.add(buyOrder);
                     }
                 }
@@ -67,7 +67,7 @@ public class OrderBook {
                     double currentPrice = prices.get(name);
                     if (currentPrice >= sellOrder.getPrice() && quantities.get(name) >= sellOrder.getQuantity()) {
                         quantities.put(name,quantities.get(name) -sellOrder.getQuantity());
-                        capital += sellOrder.getPrice() * sellOrder.getQuantity();
+                        capital += currentPrice * sellOrder.getQuantity();
                         temp.add(sellOrder);
                     }
                 }

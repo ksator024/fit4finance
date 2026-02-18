@@ -81,6 +81,7 @@ public class DBManager {
 
 
     public boolean nextTimestamp() throws SQLException {
+
         if (resultSets == null || resultSets.isEmpty()) {
             return false;
         }
