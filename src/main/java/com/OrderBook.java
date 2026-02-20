@@ -17,13 +17,7 @@ public class OrderBook {
 
     public void setOrder(Order order){
 
-        if(order.getPrice()== -1.0){
-            order.setPrice(prices.get(order.getName()));
-        }
-
         if(order.getClass().equals(BuyOrder.class)){
-
-
             buyOrders.add((BuyOrder)order);
         }
         else{
@@ -56,6 +50,9 @@ public class OrderBook {
                 for(BuyOrder buyOrder : buyOrders) {
                     String name = buyOrder.getName();
                     double currentPrice = prices.get(name);
+                    if(buyOrder.getPrice() == -1.0) {
+                        buyOrder.setPrice(currentPrice);
+                    }
                     if(currentPrice <= buyOrder.getPrice() && capital >= buyOrder.getPrice() * buyOrder.getQuantity()) {
                         quantities.put(name,quantities.get(name) +buyOrder.getQuantity());
                         capital -= currentPrice * buyOrder.getQuantity();
@@ -63,6 +60,12 @@ public class OrderBook {
                     }
                 }
                 for(SellOrder sellOrder : sellOrders) {
+
+                    if(sellOrder.getPrice() == -1.0) {
+                        sellOrder.setPrice(prices.get(sellOrder.getName()));
+                    }
+
+
                     String name = sellOrder.getName();
                     double currentPrice = prices.get(name);
                     if (currentPrice >= sellOrder.getPrice() && quantities.get(name) >= sellOrder.getQuantity()) {
