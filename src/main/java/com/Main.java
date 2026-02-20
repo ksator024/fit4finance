@@ -21,8 +21,18 @@ public class Main {
     public static void main(String[] args) {
         updater();
         Javalin app = Javalin.create(config -> {
+
             config.plugins.enableCors(cors -> {
-                cors.add(it -> it.anyHost());
+                cors.add(it -> {
+                    it.allowHost(
+                            "https://smartwood.engineering",
+                            "https://www.smartwood.engineering",
+                            "https://www.fit4finance.io",
+                            "https://fit4finance.io",
+                            "http://localhost:8080",
+                            "http://localhost:5173"
+                    );
+                });
             });
             config.staticFiles.add(staticFiles -> {
                 staticFiles.directory = "/dist";
@@ -60,7 +70,7 @@ public class Main {
         try {
             int number = Integer.parseInt(ctx.queryParam("number"));
             UUID simulationId = simManager.newSimulation(number);
-            String clientIp = ctx.ip();
+            String clientIp = getClientIp(ctx);
             String userAgent = ctx.header("User-Agent");
 
             HashMap<String, String> response = new HashMap<>();
@@ -71,6 +81,21 @@ public class Main {
         catch (Exception e) {
             logger.error("Fehler beim Initialisieren der Simulation: " + e.getMessage());
         }
+    }
+
+    // Liefert echte Client-IP hinter Nginx/Proxy/Docker
+    private static String getClientIp(Context ctx) {
+        String xff = ctx.header("X-Forwarded-For");
+        if (xff != null && !xff.isBlank()) {
+            int commaIdx = xff.indexOf(',');
+            return (commaIdx > 0 ? xff.substring(0, commaIdx) : xff).trim();
+        }
+        String xReal = ctx.header("X-Real-IP");
+        if (xReal != null && !xReal.isBlank()) {
+            return xReal.trim();
+        }
+        // Fallback auf Javalin/Jetty-Remote-IP
+        return ctx.ip();
     }
 
     private static void handleGetUpdate(Context ctx) {
@@ -202,3 +227,5 @@ public class Main {
         }
     }
 }
+
+// ES LAFFT ♥️
