@@ -27,8 +27,10 @@ public class Main {
                     it.allowHost(
                             "https://smartwood.engineering",
                             "https://www.smartwood.engineering",
+                            "https://www.fit4finance.io",
+                            "https://fit4finance.io",
                             "http://localhost:8080",
-                            "http://localhost:5137"
+                            "http://localhost:5173"
                     );
                 });
             });
