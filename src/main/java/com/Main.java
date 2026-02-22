@@ -73,8 +73,12 @@ public class Main {
             String clientIp = getClientIp(ctx);
             String userAgent = ctx.header("User-Agent");
 
-            HashMap<String, String> response = new HashMap<>();
+            HashMap<String, Object> response = new HashMap<>();
             response.put("simulationId", simulationId.toString());
+            long endTimeTs= simManager.getSimulation(simulationId).getEndTime();
+
+            response.put("endTime", endTimeTs);
+
             logger.info("New simulation ID: " + simulationId + " Nr: " + number + " IP: " + clientIp + " User-Agent: " + userAgent);
             ctx.json(response);
         }

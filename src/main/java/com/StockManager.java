@@ -103,6 +103,10 @@ public class StockManager {
         return finishTime;
     }
 
+    public long getEndTime() {
+        return endTime;
+    }
+
     public UpdateDTO getUpdateDTO(){
 
         return new UpdateDTO(capital, orderBook, db.getTimestamp(),orderBook.getQuantities(),orderBook.getCurrentPrice(),newsList,simulationStatus);
