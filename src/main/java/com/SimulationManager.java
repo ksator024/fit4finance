@@ -74,10 +74,18 @@ public class SimulationManager {
             UUID simId = entry.getKey();
             StockManager stockManager = entry.getValue();
             try {
+
+                // fallback falls tab während PAUSED geschlossen
+                if(stockManager.getInitTime() + 7200000 <= System.currentTimeMillis()) {
+                    stockManager.setSimulationStatus(SimulationStatus.FINISHED);
+                }
+
+                //updater
                 if(stockManager.getSimulationStatus() == SimulationStatus.RUNNING) {
                     stockManager.update();
                 }
                 else if(stockManager.getSimulationStatus() == SimulationStatus.FINISHED) {
+                    //delay befor deleting
                     if (stockManager.getFinishTime() + 5000 <= System.currentTimeMillis()) {
 
                         finishedSimulations.add(simId);
@@ -100,6 +108,9 @@ public class SimulationManager {
 
     public void setPause(UUID id, SimulationStatus pause) {
         simulations.get(id).setSimulationStatus(pause);
+    }
+    public int getSize() {
+        return simulations.size();
     }
 }
 

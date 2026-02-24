@@ -80,6 +80,7 @@ public class Main {
             response.put("endTime", endTimeTs);
 
             logger.info("New simulation ID: " + simulationId + " Nr: " + number + " IP: " + clientIp + " User-Agent: " + userAgent);
+            logger.info("Aktuell laufen " + simManager.getSize() + " Simulationen");
             ctx.json(response);
         }
         catch (Exception e) {

@@ -28,6 +28,7 @@ public class StockManager {
     private News nextNews;
     private SimulationStatus simulationStatus;
     private long finishTime;
+    private long initTime;
 
     public SimulationStatus getSimulationStatus() {
         return simulationStatus;
@@ -43,6 +44,8 @@ public class StockManager {
         this.startTime = scenario.getStartTime();
         this.endTime = scenario.getEndTime();
         this.orderBook = new OrderBook(stockNames);
+        this.initTime = System.currentTimeMillis();
+
 
     }
 
@@ -51,7 +54,6 @@ public class StockManager {
     }
 
     public void init() throws SQLException {
-
         simulationStatus = SimulationStatus.RUNNING;
         db.startTimestamp(stockNames, startTime,endTime);
         dbNews.startTimestamp(startTime, endTime);
@@ -88,8 +90,9 @@ public class StockManager {
                nextNews = dbNews.next();
 
         }
+
         if(currentTime >= endTime){
-            simulationStatus = SimulationStatus.FINISHED;
+            setSimulationStatus(SimulationStatus.FINISHED);
             finishTime = System.currentTimeMillis();
         }
 
@@ -123,6 +126,8 @@ public class StockManager {
     }
 
     public void setSimulationStatus(SimulationStatus simulationStatus) {
+
+        finishTime = System.currentTimeMillis();
         this.simulationStatus = simulationStatus;
     }
 
@@ -140,4 +145,9 @@ public class StockManager {
     public DBManagerNews getDbNews() {
         return dbNews;
     }
+
+    public long getInitTime() {
+        return initTime;
+    }
 }
+
