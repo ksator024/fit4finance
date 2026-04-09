@@ -2,7 +2,7 @@
   
 [fit4finance.io](https://www.fit4finance.io)
  
-**Gewinner „KARDEA!" 2026** — HTL Anichstraße, 3. Klasse Wirtschaftsabteilung
+**Gewinner „KARDEA!" 2026** HTL Anichstraße, 3. Klasse Wirtschaftsabteilung
  
 ---
  
